@@ -58,6 +58,7 @@ public abstract class Reader {
                 new CoverityReader(),
                 new CrashtestReader(),
                 new DatadogReader(),
+                new SASTDatadogReader(),
                 new FaastReader(),
                 new FindbugsReader(),
                 new FluidAttacksReader(),

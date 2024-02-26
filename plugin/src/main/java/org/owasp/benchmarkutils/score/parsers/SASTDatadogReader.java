@@ -60,7 +60,6 @@ public class SASTDatadogReader extends Reader {
                     ex.printStackTrace();
                 }
             }
-            tr.setTime(calculateTime(firstLine, lastLine[0]));
         }
         return tr;
     }
@@ -93,7 +92,7 @@ public class SASTDatadogReader extends Reader {
         for (String line : chunk) {
             TestCaseResult tcr = new TestCaseResult();
 
-            String fname = "/" + BenchmarkScore.TESTCASENAME;
+            String fname = BenchmarkScore.TESTCASENAME;
             int idx = line.indexOf(fname);
             if (idx != -1) {
                 testNumber = line.substring(idx + fname.length(), idx + fname.length() + 5);
@@ -103,14 +102,35 @@ public class SASTDatadogReader extends Reader {
                 if ("java-security/sql-string-tainted".equals(data[1])) {
                     tcr.setCWE(Type.SQL_INJECTION.number);
                     tcr.setCategory(Type.SQL_INJECTION.id);
-                    try {
-                        tcr.setNumber(Integer.parseInt(testNumber));
-                    } catch (NumberFormatException e) {
-                        System.out.println("> Parse error: " + line);
-                    }
-                    if (tcr.getCWE() != 0) {
-                        tr.put(tcr);
-                    }
+
+                } else if ("java-security/avoid-random".equals(data[1])) {
+                    tcr.setCWE(Type.WEAK_RANDOMNESS.number);
+                    tcr.setCategory(Type.WEAK_RANDOMNESS.id);
+                } else if ("java-security/cookies-secure-flag".equals(data[1])) {
+                    tcr.setCWE(Type.INSECURE_COOKIE.number);
+                    tcr.setCategory(Type.INSECURE_COOKIE.id);
+                } else if ("java-security/keygenerator-avoid-des".equals(data[1])) {
+                    tcr.setCWE(Type.WEAK_CIPHER.number);
+                    tcr.setCategory(Type.WEAK_CIPHER.id);
+                } else if ("java-security/ldap-injection".equals(data[1])) {
+                    tcr.setCWE(Type.LDAP_INJECTION.number);
+                    tcr.setCategory(Type.LDAP_INJECTION.id);
+                } else if ("java-security/processbuilder-injection".equals(data[1])) {
+                    tcr.setCWE(Type.COMMAND_INJECTION.number);
+                    tcr.setCategory(Type.COMMAND_INJECTION.id);
+                } else if ("java-security/weak-message-digest-md5".equals(data[1])
+                        || "java-security/weak-message-digest-sha1".equals(data[1])) {
+                    tcr.setCWE(Type.WEAK_HASH.number);
+                    tcr.setCategory(Type.WEAK_HASH.id);
+                }
+                try {
+                    tcr.setNumber(Integer.parseInt(testNumber));
+                } catch (NumberFormatException e) {
+                    System.out.println("> Parse error: " + line);
+                }
+                if (tcr.getCWE() != 0) {
+                    System.out.println(tcr);
+                    tr.put(tcr);
                 }
             }
         }
